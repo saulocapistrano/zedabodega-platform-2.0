@@ -1,5 +1,6 @@
-package com.ze.financeiro.entity;
+package com.ze.financeiro.domain;
 
+import com.ze.financeiro.domain.model.Payment;
 import jakarta.persistence.*;
 import lombok.*;
 
