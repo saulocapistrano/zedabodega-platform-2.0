@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: Saulo
+      changes:
+        - include:
+            file: db/changelog/001-create-payments-table.yaml
+        - include:
+            file: db/changelog/002-create-transaction-logs-table.yaml
