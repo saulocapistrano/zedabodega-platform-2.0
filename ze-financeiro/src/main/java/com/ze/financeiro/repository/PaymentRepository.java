@@ -1,6 +1,6 @@
 package com.ze.financeiro.repository;
 
-import com.ze.financeiro.entity.Payment;
+import com.ze.financeiro.domain.model.Payment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;
