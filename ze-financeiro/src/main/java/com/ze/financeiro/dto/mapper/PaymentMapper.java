@@ -36,6 +36,12 @@ public class PaymentMapper {
 
     }
 
+    public static void update(Payment payment, PaymentRequestDTO dto) {
+        payment.setOrderId(dto.orderId());
+        payment.setAmount(dto.amount());
+        payment.setMethod(PaymentMethod.fromCode(dto.method()));
+    }
+
     public static void updateStatus(Payment payment, PaymentStatus newStatus, String rejectionReason) {
         payment.setStatus(newStatus);
         if (newStatus == PaymentStatus.APPROVED) {
