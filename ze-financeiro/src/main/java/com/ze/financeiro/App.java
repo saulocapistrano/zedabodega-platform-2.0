@@ -1,4 +1,4 @@
-package com.ze;
+package com.ze.financeiro;
 
 /**
  * Hello world!
