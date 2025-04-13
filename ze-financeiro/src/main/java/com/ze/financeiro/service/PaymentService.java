@@ -25,8 +25,8 @@ public class PaymentService {
     public PaymentResponseDTO create(PaymentRequestDTO dto) {
         Payment payment = Payment.createNew(
                 dto.orderId(),
-                dto.amount(),
-                dto.method()
+                new Money(dto.amount()),
+                PaymentMethod.valueOf(dto.method())
         );
 
         Payment saved = paymentRepository.save(payment);
