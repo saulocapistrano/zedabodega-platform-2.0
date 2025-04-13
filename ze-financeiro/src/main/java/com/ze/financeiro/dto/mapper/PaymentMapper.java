@@ -1,24 +1,19 @@
 package com.ze.financeiro.dto.mapper;
 
-
+import com.ze.financeiro.domain.PaymentMethod;
+import com.ze.financeiro.domain.model.Payment;
+import com.ze.financeiro.domain.vo.Money;
 import com.ze.financeiro.dto.request.PaymentRequestDTO;
 import com.ze.financeiro.dto.response.PaymentResponseDTO;
-import com.ze.financeiro.entity.Payment;
-import com.ze.financeiro.entity.PaymentMethod;
-import com.ze.financeiro.entity.PaymentStatus;
-
-import java.time.Instant;
 
 public class PaymentMapper {
 
     public static Payment toEntity(PaymentRequestDTO dto) {
         return Payment.builder()
                 .orderId(dto.orderId())
-                .amount(dto.amount())
+                .amount(Money.of(dto.amount()))
                 .method(PaymentMethod.fromCode(dto.method()))
-                .status(PaymentStatus.APPROVED)
-                .createdAt(Instant.now())
-                .approvedAt(Instant.now())
+                .status(null)
                 .build();
     }
 
@@ -26,30 +21,20 @@ public class PaymentMapper {
         return new PaymentResponseDTO(
                 entity.getId(),
                 entity.getOrderId(),
-                entity.getAmount(),
+                entity.getAmount().getValue(),
                 entity.getMethod(),
                 entity.getStatus(),
                 entity.getCreatedAt(),
                 entity.getApprovedAt(),
                 entity.getRejectedReason()
         );
-
     }
 
     public static void update(Payment payment, PaymentRequestDTO dto) {
-        payment.setOrderId(dto.orderId());
-        payment.setAmount(dto.amount());
-        payment.setMethod(PaymentMethod.fromCode(dto.method()));
-    }
-
-    public static void updateStatus(Payment payment, PaymentStatus newStatus, String rejectionReason) {
-        payment.setStatus(newStatus);
-        if (newStatus == PaymentStatus.APPROVED) {
-            payment.setApprovedAt(Instant.now());
-            payment.setRejectedReason(null);
-        } else if (newStatus == PaymentStatus.REJECTED) {
-            payment.setApprovedAt(null);
-            payment.setRejectedReason(rejectionReason);
-        }
+        payment.updateBasicData(
+                dto.orderId(),
+                Money.of(dto.amount()),
+                PaymentMethod.fromCode(dto.method())
+        );
     }
 }
