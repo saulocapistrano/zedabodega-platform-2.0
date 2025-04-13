@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -45,6 +46,16 @@ public class Payment {
 
     private String rejectedReason;
 
+    public static Payment createNew(UUID orderId, BigDecimal amount, String methodCode) {
+        return Payment.builder()
+                .orderId(orderId)
+                .amount(new Money(amount))
+                .method(PaymentMethod.fromCode(methodCode))
+                .status(PaymentStatus.APPROVED)
+                .createdAt(Instant.now())
+                .approvedAt(Instant.now())
+                .build();
+    }
 
     public void approve() {
         this.status = PaymentStatus.APPROVED;
