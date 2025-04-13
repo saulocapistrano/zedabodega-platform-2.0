@@ -1,0 +1,38 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-transaction-logs-table
+      author: saulo
+      changes:
+        - createTable:
+            tableName: transaction_logs
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: payment_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: timestamp
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: details
+                  type: TEXT
+        - addForeignKeyConstraint:
+            baseTableName: transaction_logs
+            baseColumnNames: payment_id
+            referencedTableName: payments
+            referencedColumnNames: id
+            constraintName: fk_transaction_payment

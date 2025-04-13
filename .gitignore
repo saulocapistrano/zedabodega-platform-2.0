@@ -1,0 +1,18 @@
+# IntelliJ
+.idea/
+*.iml
+
+# Build
+target/
+build/
+
+# Sistema Operacional
+.DS_Store
+Thumbs.db
+
+# Maven
+.mvn/
+!mvn/wrapper/
+
+# Logs
+*.log
