@@ -1,12 +1,10 @@
 package com.ze.financeiro.service;
 
-import com.ze.financeiro.dto.mapper.PaymentMapper;
 import com.ze.financeiro.dto.request.PaymentRequestDTO;
 import com.ze.financeiro.dto.response.PaymentResponseDTO;
-import com.ze.financeiro.entity.Payment;
-import com.ze.financeiro.entity.PaymentStatus;
-import com.ze.financeiro.exception.InvalidPaymentStatusException;
-import com.ze.financeiro.exception.PaymentNotFoundException;
+import com.ze.financeiro.domain.model.Payment;
+import com.ze.financeiro.domain.PaymentMethod;
+import com.ze.financeiro.domain.vo.Money;
 import com.ze.financeiro.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -25,38 +23,41 @@ public class PaymentService {
 
     @Transactional
     public PaymentResponseDTO create(PaymentRequestDTO dto) {
-        Payment payment = PaymentMapper.toEntity(dto);
+        Payment payment = Payment.createNew(
+                dto.orderId(),
+                dto.amount(),
+                dto.method()
+        );
+
         Payment saved = paymentRepository.save(payment);
-        return PaymentMapper.toDTO(saved);
+
+        return PaymentResponseDTO.from(saved);
     }
 
     public PaymentResponseDTO findById(UUID id) {
-        Payment payment = paymentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found with ID: " + id));
-        return PaymentMapper.toDTO(payment);
+        Payment payment = getPaymentOrThrow(id);
+        return PaymentResponseDTO.from(payment);
     }
 
     public List<PaymentResponseDTO> findAll() {
         return paymentRepository.findAll()
                 .stream()
-                .map(PaymentMapper::toDTO)
+                .map(PaymentResponseDTO::from)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public PaymentResponseDTO updateStatus(UUID paymentId, PaymentStatus newStatus, String rejectionReason) {
-        Payment payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new PaymentNotFoundException(paymentId.toString()));
+    public PaymentResponseDTO update(UUID id, PaymentRequestDTO dto) {
+        Payment payment = getPaymentOrThrow(id);
 
-        if (newStatus == null) {
-            throw new InvalidPaymentStatusException("New status must not be null.");
-        }
+        payment.updateBasicData(
+                dto.orderId(),
+                new Money(dto.amount()),
+                PaymentMethod.fromCode(dto.method())
+        );
 
-        PaymentMapper.updateStatus(payment, newStatus, rejectionReason);
-        Payment updated = paymentRepository.save(payment);
-        return PaymentMapper.toDTO(updated);
+        return PaymentResponseDTO.from(payment);
     }
-
 
     @Transactional
     public void delete(UUID id) {
@@ -64,5 +65,10 @@ public class PaymentService {
             throw new EntityNotFoundException("Payment not found with ID: " + id);
         }
         paymentRepository.deleteById(id);
+    }
+
+    private Payment getPaymentOrThrow(UUID id) {
+        return paymentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Payment not found with ID: " + id));
     }
 }
