@@ -5,6 +5,8 @@ import com.ze.financeiro.dto.request.PaymentRequestDTO;
 import com.ze.financeiro.dto.response.PaymentResponseDTO;
 import com.ze.financeiro.entity.Payment;
 import com.ze.financeiro.entity.PaymentStatus;
+import com.ze.financeiro.exception.InvalidPaymentStatusException;
+import com.ze.financeiro.exception.PaymentNotFoundException;
 import com.ze.financeiro.repository.PaymentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -42,14 +44,19 @@ public class PaymentService {
     }
 
     @Transactional
-    public PaymentResponseDTO update(UUID id, PaymentRequestDTO dto) {
-        Payment existing = paymentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Payment not found with ID: " + id));
+    public PaymentResponseDTO updateStatus(UUID paymentId, PaymentStatus newStatus, String rejectionReason) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException(paymentId.toString()));
 
-        PaymentMapper.update(existing, dto);
-        Payment updated = paymentRepository.save(existing);
+        if (newStatus == null) {
+            throw new InvalidPaymentStatusException("New status must not be null.");
+        }
+
+        PaymentMapper.updateStatus(payment, newStatus, rejectionReason);
+        Payment updated = paymentRepository.save(payment);
         return PaymentMapper.toDTO(updated);
     }
+
 
     @Transactional
     public void delete(UUID id) {
