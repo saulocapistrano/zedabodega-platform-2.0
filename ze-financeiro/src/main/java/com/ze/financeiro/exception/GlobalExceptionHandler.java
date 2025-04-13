@@ -70,4 +70,29 @@ public class GlobalExceptionHandler {
                         Instant.now()
                 ));
     }
+
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> handlePaymentNotFound(PaymentNotFoundException ex, HttpServletRequest request) {
+        log.warn("Payment not found: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponseDTO(
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        HttpStatus.NOT_FOUND.value(),
+                        Instant.now()
+                ));
+    }
+
+    @ExceptionHandler(InvalidPaymentStatusException.class)
+    public ResponseEntity<ErrorResponseDTO> handleInvalidStatus(InvalidPaymentStatusException ex, HttpServletRequest request) {
+        log.warn("Invalid payment status: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ErrorResponseDTO(
+                        ex.getMessage(),
+                        request.getRequestURI(),
+                        HttpStatus.BAD_REQUEST.value(),
+                        Instant.now()
+                ));
+    }
+
 }
