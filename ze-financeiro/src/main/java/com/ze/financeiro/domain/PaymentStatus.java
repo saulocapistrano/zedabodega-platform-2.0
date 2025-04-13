@@ -1,4 +1,4 @@
-package com.ze.financeiro.entity;
+package com.ze.financeiro.domain;
 
 import lombok.Getter;
 
